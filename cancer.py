@@ -2,16 +2,25 @@ import os
 from typing import Tuple
 from neural import *
 os.system('cls')
-with open('Cancer_Data.csv','a') as f:
-    for line in f:
-        fields = line.split(',')
-        id = fields[0]
-        if fields[1] == 'M':
-            fields[1] = 1
-        if fields[1] == 'B':
-            fields[1] = 0
-        fields.remove(fields[0])
-        f.write(fields)
+file = []
+def cleandata():  
+    with open('Cancer_Data.csv','r+') as f:
+        for line in f:
+            fields = line.split(',')
+            if len(fields) != '32':
+                print(len(fields))
+            id = fields[0]
+            if fields[1] == 'M':
+                fields[1] = '1'
+            if fields[1] == 'B':
+                fields[1] = '0'
+            fields.remove(fields[0])
+            string = (',').join(fields)
+            file.append(string)
+    with open('Cancer_Data.txt','w') as f:
+        for line in file:
+            f.write(line)
+
 def parse_line(line: str) -> Tuple[List[float], List[float]]:
     """Splits line of CSV into inputs and output (transormfing output as appropriate)
 
@@ -54,14 +63,16 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
     return data
 
 def run():
-    with open("Cancer_Data.csv", "r") as f:
+    print('1')
+    with open("Cancer_Data.txt", "r") as f:
         training_data = [parse_line(line) for line in f.readlines() if len(line) > 4]
-
+    print('2')
     td = normalize(training_data)
-
+    print('3')
     nn = NeuralNet(30,5,1)
-    nn.train(td, iters=100_000, print_interval=1000, learning_rate=0.05)
-
+    print('4')
+    nn.train(td, iters=100_000, print_interval=10, learning_rate=0.1)
+    print('5')
     for i in nn.test_with_expected(td):
         print(f"desired: {i[1]}, actual: {i[2]}")
 run()
