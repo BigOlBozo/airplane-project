@@ -63,16 +63,11 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
     return data
 
 def run():
-    print('1')
     with open("Cancer_Data.txt", "r") as f:
         training_data = [parse_line(line) for line in f.readlines() if len(line) > 4]
-    print('2')
     td = normalize(training_data)
-    print('3')
-    nn = NeuralNet(30,1,1)
-    print('4')
-    nn.train(td, iters=1_000, print_interval=10, learning_rate=0.5)
-    print('5')
+    nn = NeuralNet(30,5,1)
+    nn.train(td, iters=1_000, print_interval=1, learning_rate=0.5)
     for i in nn.test_with_expected(td):
         print(f"desired: {i[1]}, actual: {i[2]}")
 run()
