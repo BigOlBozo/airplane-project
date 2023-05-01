@@ -32,7 +32,7 @@ def parse_line(line: str) -> Tuple[List[float], List[float]]:
     """
     tokens = line.split(",")
     out = int(tokens[0])
-    output = [0 if out == 1 else 0.5 if out == 2 else 1]
+    output = [1 if out == 1 else 0]
 
     inpt = [float(x) for x in tokens[1:]]
     return (inpt, output)
@@ -69,9 +69,9 @@ def run():
     print('2')
     td = normalize(training_data)
     print('3')
-    nn = NeuralNet(30,5,1)
+    nn = NeuralNet(30,1,1)
     print('4')
-    nn.train(td, iters=100_000, print_interval=10, learning_rate=0.1)
+    nn.train(td, iters=1_000, print_interval=10, learning_rate=0.5)
     print('5')
     for i in nn.test_with_expected(td):
         print(f"desired: {i[1]}, actual: {i[2]}")
