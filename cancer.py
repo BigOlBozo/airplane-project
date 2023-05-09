@@ -61,13 +61,29 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         for j in range(len(data[i][0])):
             data[i][0][j] = (data[i][0][j] - leasts[j]) / (mosts[j] - leasts[j])
     return data
-
-def run():
+def run(learnrate):
+    errors = 0
+    diffs = []
     with open("Cancer_Data.txt", "r") as f:
         training_data = [parse_line(line) for line in f.readlines() if len(line) > 4]
     td = normalize(training_data)
     nn = NeuralNet(30,5,1)
-    nn.train(td, iters=1_000, print_interval=1, learning_rate=0.5)
+    nn.train(td, iters=100, print_interval=10, learning_rate=learnrate)
     for i in nn.test_with_expected(td):
-        print(f"desired: {i[1]}, actual: {i[2]}")
-run()
+        if int(i[1][0]) == 1:
+            if (1-(float(i[2][0]))) > 0.01:
+                errors += 1
+                #print(f'expected: {i[1][0]} actual:{float(i[2][0])}')
+            diffs.append(1-float(i[2][0]))
+
+        if int(i[1][0]) == 0:
+            if float(i[2][0]) > 0.01:
+                errors +=1
+                #print(f'expected: {i[1][0]} actual:{float(i[2][0])}')
+            diffs.append(float(i[2][0]))
+        
+    print(f'rate: {learnrate} errors: {errors} avg diff: {sum(diffs)/len(diffs)}')
+for x in range(1,11):
+    run(float(x/10))
+#run()
+
