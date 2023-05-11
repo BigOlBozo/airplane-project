@@ -1,4 +1,5 @@
 import os
+from time import perf_counter_ns as click
 from typing import Tuple
 from neural import *
 os.system('cls')
@@ -61,14 +62,16 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         for j in range(len(data[i][0])):
             data[i][0][j] = (data[i][0][j] - leasts[j]) / (mosts[j] - leasts[j])
     return data
-def run(learnrate):
+data = []
+def run(learnrate, numiter):
+    time = click()
     errors = 0
     diffs = []
     with open("Cancer_Data.txt", "r") as f:
         training_data = [parse_line(line) for line in f.readlines() if len(line) > 4]
     td = normalize(training_data)
     nn = NeuralNet(30,5,1)
-    nn.train(td, iters=100, print_interval=10, learning_rate=learnrate)
+    nn.train(td, iters=numiter, print_interval=numiter, learning_rate=learnrate)
     for i in nn.test_with_expected(td):
         if int(i[1][0]) == 1:
             if (1-(float(i[2][0]))) > 0.01:
@@ -81,9 +84,20 @@ def run(learnrate):
                 errors +=1
                 #print(f'expected: {i[1][0]} actual:{float(i[2][0])}')
             diffs.append(float(i[2][0]))
-        
-    print(f'rate: {learnrate} errors: {errors} avg diff: {sum(diffs)/len(diffs)}')
-for x in range(1,11):
-    run(float(x/10))
-#run()
+    
+    #data.append([numiter,learnrate,errors,time])    
+    print(f'rate: {learnrate} errors: {errors} avg diff: {sum(diffs)/len(diffs)} time: {(int(click())-int(time))/(1000000000)}')
+    elapsed = (int(click())-int(time))/(1000000000)
+    data.append([numiter,learnrate,errors,elapsed])
 
+
+for y in range(1,11):
+    for x in range(1,11):
+        run(float(x/10), y*100)
+ratio = []      
+for point in data:
+    ratio.append((point[2])/float(point[3]))
+for x in range(len(ratio)):
+    if ratio[x] == min(ratio):
+        print(data[x])
+        break
