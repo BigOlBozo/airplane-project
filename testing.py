@@ -2,7 +2,9 @@ import os
 from time import perf_counter_ns as click
 from typing import Tuple
 from neural import *
+os.system('cls')
 file = []
+start = click()
 def cleandata():  
     with open('Cancer_Data.csv','r+') as f:
         for line in f:
@@ -61,43 +63,38 @@ def normalize(data: List[Tuple[List[float], List[float]]]):
         for j in range(len(data[i][0])):
             data[i][0][j] = (data[i][0][j] - leasts[j]) / (mosts[j] - leasts[j])
     return data
-data = []
 with open("Cancer_Data.txt", "r") as f:
     training_data = [parse_line(line) for line in f.readlines() if len(line) > 4]
 td = normalize(training_data)
-nn = NeuralNet(30,5,1)
-def run(nn, learnrate, numiter):
-    time = click()
+
+def run(nn, learnrate, numiter,nodes):
     errors = 0
-    diffs = []
+    time = click()
     nn.train(td, iters=numiter, print_interval=numiter, learning_rate=learnrate)
+    elapsed = click()-time
     for i in nn.test_with_expected(td):
         if int(i[1][0]) == 1:
             if (1-(float(i[2][0]))) > 0.01:
                 errors += 1
-                #print(f'expected: {i[1][0]} actual:{float(i[2][0])}')
-            diffs.append(1-float(i[2][0]))
-        if int(i[1][0]) == 0:
+        else:
             if float(i[2][0]) > 0.01:
                 errors +=1
-                #print(f'expected: {i[1][0]} actual:{float(i[2][0])}')
-            diffs.append(float(i[2][0]))
-    #data.append([numiter,learnrate,errors,time])    
-    print(f'rate: {learnrate} errors: {errors} avg diff: {sum(diffs)/len(diffs)} time: {(int(click())-int(time))/(1000000000)}')
-    elapsed = (int(click())-int(time))/(1000000000)
     with open('data.txt','a') as f:
-        f.write(f'{numiter},{learnrate},{errors},{elapsed}\n')
-    data.append([numiter,learnrate,errors,elapsed])
+        f.write(f'{numiter},{learnrate},{nodes},{errors},{elapsed}\n')
 
 with open('data.txt','w') as f:
     f.write('')
-for y in range(1,11):
-    for x in range(1,20):
-        run(nn, float(x/10), y*100)
-ratio = []      
+for z in range(1,10):
+    nn = NeuralNet(30,z,1)    
+    for y in range(1,11):
+        for x in range(1,20):
+            run(nn, float(x/10), y*100,z)
+'''ratio = []      
 for point in data:
     ratio.append((point[2])/float(point[3]))
 for x in range(len(ratio)):
     if ratio[x] == min(ratio):
         print(data[x])
-        break
+        break'''
+with open('data.txt','a') as f:
+    f.write(f'{(click()-start)}')
